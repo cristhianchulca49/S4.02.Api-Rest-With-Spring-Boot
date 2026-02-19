@@ -1,12 +1,11 @@
 package cat.itacademy.fruitapih2;
 
 import cat.itacademy.fruitapih2.dto.FruitDto;
-import cat.itacademy.fruitapih2.repository.FruitRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 
@@ -16,17 +15,14 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Transactional
 class FruitApiH2ApplicationTests {
 
     @LocalServerPort
     private int randomPort;
 
-    @Autowired
-    private FruitRepository repository;
-
     @BeforeEach
     void setUp() {
-        repository.deleteAll();
         RestAssured.port = randomPort;
     }
 
@@ -115,5 +111,38 @@ class FruitApiH2ApplicationTests {
                 .statusCode(200)
                 .body("$", hasSize(0))
                 .body("$", empty());
+    }
+
+    @Test
+    void shouldGetFruitByIdAndReturn200() {
+        FruitDto fruit = new FruitDto(null, "Pineapple", 2.1);
+
+        Integer generatedId = given()
+                .contentType(ContentType.JSON)
+                .body(fruit)
+                .when()
+                .post("/fruits")
+                .then()
+                .statusCode(201)
+                .extract()
+                .path("id");
+
+        given()
+                .when()
+                .get("fruits/{id}", generatedId)
+                .then()
+                .statusCode(200)
+                .body("id", equalTo(generatedId))
+                .body("name", is(fruit.name()));
+    }
+
+    @Test
+    void getById_shouldReturn404IfFruitNotExist() {
+        given()
+                .when()
+                .get("fruits/{id}", 1L)
+                .then()
+                .statusCode(404)
+                .body("message", containsStringIgnoringCase("Fruit with id: 1 not found"));
     }
 }

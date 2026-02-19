@@ -2,6 +2,7 @@ package cat.itacademy.fruitapih2.service;
 
 import cat.itacademy.fruitapih2.dto.FruitDto;
 import cat.itacademy.fruitapih2.exception.FruitAlreadyExistsException;
+import cat.itacademy.fruitapih2.exception.FruitNotFoundException;
 import cat.itacademy.fruitapih2.mapper.FruitMapper;
 import cat.itacademy.fruitapih2.model.Fruit;
 import cat.itacademy.fruitapih2.repository.FruitRepository;
@@ -32,5 +33,11 @@ public class FruitService {
         return fruitRepository.findAll().stream()
                 .map(FruitMapper::toDto)
                 .toList();
+    }
+
+    public FruitDto getById(Long id) {
+        return fruitRepository.findById(id)
+                .map(FruitMapper::toDto)
+                .orElseThrow(() -> new FruitNotFoundException(id));
     }
 }
