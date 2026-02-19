@@ -47,4 +47,9 @@ public class FruitService {
         fruit.setWeightKg(fruitDto.weightKg());
         return FruitMapper.toDto(fruitRepository.save(fruit));
     }
+
+    public void delete(Long id) {
+        fruitRepository.findById(id).orElseThrow(() -> new FruitNotFoundException(id));
+        fruitRepository.deleteById(id);
+    }
 }

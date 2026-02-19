@@ -206,4 +206,33 @@ class FruitApiH2ApplicationTests {
                 .then()
                 .statusCode(400);
     }
+
+    @Test
+    void shouldDeleteFruitAndReturn204() {
+        FruitDto fruit = new FruitDto(null, "Apple", 0.5);
+
+        Number generatedId = given()
+                .contentType(ContentType.JSON)
+                .body(fruit)
+                .post("/fruits")
+                .then()
+                .extract()
+                .path("id");
+
+        given()
+                .when()
+                .delete("/fruits/{id}", generatedId)
+                .then()
+                .statusCode(204);
+    }
+
+    @Test
+    void delete_shouldReturn404IfFruitNotExist() {
+        given()
+                .when()
+                .delete("/fruits/{id}", 1)
+                .then()
+                .statusCode(404)
+                .body("message", containsStringIgnoringCase("Fruit with id: 1 not found"));
+    }
 }
