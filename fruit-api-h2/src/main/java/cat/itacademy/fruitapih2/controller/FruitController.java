@@ -32,5 +32,8 @@ public class FruitController {
                 .created(location)
                 .body(createdFruit);
     }
-
+    @GetMapping
+    ResponseEntity<List<FruitDto>> getAll(){
+        return ResponseEntity.ok(fruitService.getAll());
+    }
 }
