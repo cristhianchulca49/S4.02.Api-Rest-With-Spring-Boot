@@ -40,4 +40,11 @@ public class FruitService {
                 .map(FruitMapper::toDto)
                 .orElseThrow(() -> new FruitNotFoundException(id));
     }
+
+    public FruitDto update(Long id, FruitDto fruitDto) {
+        Fruit fruit = fruitRepository.findById(id).orElseThrow(() -> new FruitNotFoundException(id));
+        fruit.setName(fruitDto.name());
+        fruit.setWeightKg(fruitDto.weightKg());
+        return FruitMapper.toDto(fruitRepository.save(fruit));
+    }
 }

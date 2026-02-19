@@ -117,7 +117,7 @@ class FruitApiH2ApplicationTests {
     void shouldGetFruitByIdAndReturn200() {
         FruitDto fruit = new FruitDto(null, "Pineapple", 2.1);
 
-        Integer generatedId = given()
+        Number generatedId = given()
                 .contentType(ContentType.JSON)
                 .body(fruit)
                 .when()
@@ -144,5 +144,66 @@ class FruitApiH2ApplicationTests {
                 .then()
                 .statusCode(404)
                 .body("message", containsStringIgnoringCase("Fruit with id: 1 not found"));
+    }
+
+    @Test
+    void shouldUpdateFruitAndReturn200() {
+        FruitDto fruit = new FruitDto(null, "Banana", 0.3);
+        FruitDto updateFruit = new FruitDto(null, "Canarian Banana", 1.5);
+
+        Number generatedId = given()
+                .contentType(ContentType.JSON)
+                .body(fruit)
+                .post("/fruits")
+                .then()
+                .extract()
+                .path("id");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(updateFruit)
+                .when()
+                .put("/fruits/{id}", generatedId)
+                .then()
+                .statusCode(200)
+                .body("id", equalTo(generatedId))
+                .body("name", is(updateFruit.name()))
+                .body("weightKg", equalTo(1.5f));
+    }
+
+    @Test
+    void update_shouldReturn404IfFruitNotExist() {
+        FruitDto updateFruit = new FruitDto(null, "Canarian Banana", 1.5);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(updateFruit)
+                .when()
+                .put("/fruits/{id}", 1)
+                .then()
+                .statusCode(404)
+                .body("message", containsStringIgnoringCase("Fruit with id: 1 not found"));
+    }
+
+    @Test
+    void update_shouldReturn400WhenInvalidData() {
+        FruitDto fruit = new FruitDto(null, "Banana", 0.3);
+        FruitDto updateFruit = new FruitDto(null, "", -4);
+
+        Number generatedId = given()
+                .contentType(ContentType.JSON)
+                .body(fruit)
+                .post("/fruits")
+                .then()
+                .extract()
+                .path("id");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(updateFruit)
+                .when()
+                .put("/fruits/{id}", generatedId)
+                .then()
+                .statusCode(400);
     }
 }
