@@ -37,7 +37,7 @@ class FruitApiMysqlApplicationTests {
                 .statusCode(201)
                 .body("id", notNullValue())
                 .body("name", is(supplierDtoRequest.name()))
-                .body("city", is(supplierDtoRequest.country()));
+                .body("country", is(supplierDtoRequest.country()));
     }
 
     @Test
