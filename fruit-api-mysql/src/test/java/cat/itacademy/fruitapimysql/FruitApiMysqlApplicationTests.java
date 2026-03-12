@@ -60,4 +60,18 @@ class FruitApiMysqlApplicationTests {
                 .body("message", containsStringIgnoringCase("Supplier with name Carrefour already exists"));
 
     }
+
+    @Test
+    void create_shouldReturn400WhenNameIsBlank() {
+        SupplierDto supplierDto = new SupplierDto(null, "", "Spain");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(supplierDto)
+                .when()
+                .post("/suppliers")
+                .then()
+                .statusCode(400)
+                .body("errors.name", containsStringIgnoringCase("name cannot be in blank"));
+    }
 }
