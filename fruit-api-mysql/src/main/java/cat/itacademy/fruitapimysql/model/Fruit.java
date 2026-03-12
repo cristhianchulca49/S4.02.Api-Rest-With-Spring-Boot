@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Entity
-@Table(name = "fruits")
+@Table(name = "fruit")
 public class Fruit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +22,7 @@ public class Fruit {
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "provider_id")
+    @JoinColumn(name = "supplier_id")
     private Supplier supplier;
 
     public Fruit(String name, Double weightKg, Supplier suppliers) {

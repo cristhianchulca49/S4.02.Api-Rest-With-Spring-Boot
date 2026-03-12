@@ -1,6 +1,7 @@
 package cat.itacademy.fruitapimysql.service;
 
-import cat.itacademy.fruitapimysql.dto.SupplierDto;
+import cat.itacademy.fruitapimysql.dto.supplier.SupplierDtoRequest;
+import cat.itacademy.fruitapimysql.dto.supplier.SupplierDtoResponse;
 import cat.itacademy.fruitapimysql.exception.ResourceAlreadyExistsException;
 import cat.itacademy.fruitapimysql.mapper.SupplierMapper;
 import cat.itacademy.fruitapimysql.model.Supplier;
@@ -15,11 +16,11 @@ public class SupplierService {
         this.supplierRepository = supplierRepository;
     }
 
-    public SupplierDto create(SupplierDto supplierDto) {
-        if (supplierRepository.existsByName(supplierDto.name())) {
-            throw new ResourceAlreadyExistsException("Supplier", supplierDto.name());
+    public SupplierDtoResponse create(SupplierDtoRequest supplierDtoRequest) {
+        if (supplierRepository.existsByName(supplierDtoRequest.name())) {
+            throw new ResourceAlreadyExistsException("Supplier", supplierDtoRequest.name());
         }
-        Supplier supplier = supplierRepository.save(SupplierMapper.toEntity(supplierDto));
+        Supplier supplier = supplierRepository.save(SupplierMapper.toEntity(supplierDtoRequest));
         return SupplierMapper.toDto(supplier);
     }
 }

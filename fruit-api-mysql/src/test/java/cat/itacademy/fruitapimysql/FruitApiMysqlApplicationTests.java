@@ -1,6 +1,6 @@
 package cat.itacademy.fruitapimysql;
 
-import cat.itacademy.fruitapimysql.dto.SupplierDto;
+import cat.itacademy.fruitapimysql.dto.supplier.SupplierDtoRequest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import jakarta.transaction.Transactional;
@@ -27,27 +27,27 @@ class FruitApiMysqlApplicationTests {
 
     @Test
     void shouldCreateSupplierAndReturn201() {
-        SupplierDto supplierDto = new SupplierDto(null, "Carrefour", "Spain");
+        SupplierDtoRequest supplierDtoRequest = new SupplierDtoRequest(null, "Carrefour", "Spain");
         given()
                 .contentType(ContentType.JSON)
-                .body(supplierDto)
+                .body(supplierDtoRequest)
                 .when()
                 .post("/suppliers")
                 .then()
                 .statusCode(201)
                 .body("id", notNullValue())
-                .body("name", is(supplierDto.name()))
-                .body("city", is(supplierDto.city()));
+                .body("name", is(supplierDtoRequest.name()))
+                .body("city", is(supplierDtoRequest.country()));
     }
 
     @Test
     void create_shouldReturn409WhenSupplierNameAlreadyExists() {
-        SupplierDto supplierDto = new SupplierDto(null, "Carrefour", "Spain");
-        SupplierDto supplierDuplicated = new SupplierDto(null, "Carrefour", "Equator");
+        SupplierDtoRequest supplierDtoRequest = new SupplierDtoRequest(null, "Carrefour", "Spain");
+        SupplierDtoRequest supplierDuplicated = new SupplierDtoRequest(null, "Carrefour", "Equator");
 
         given()
                 .contentType(ContentType.JSON)
-                .body(supplierDto)
+                .body(supplierDtoRequest)
                 .post("/suppliers");
 
         given()
@@ -63,11 +63,11 @@ class FruitApiMysqlApplicationTests {
 
     @Test
     void create_shouldReturn400WhenNameIsBlank() {
-        SupplierDto supplierDto = new SupplierDto(null, "", "Spain");
+        SupplierDtoRequest supplierDtoRequest = new SupplierDtoRequest(null, "", "Spain");
 
         given()
                 .contentType(ContentType.JSON)
-                .body(supplierDto)
+                .body(supplierDtoRequest)
                 .when()
                 .post("/suppliers")
                 .then()

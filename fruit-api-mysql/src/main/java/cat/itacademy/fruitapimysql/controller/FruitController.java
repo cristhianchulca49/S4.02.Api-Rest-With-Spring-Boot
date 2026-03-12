@@ -1,6 +1,7 @@
 package cat.itacademy.fruitapimysql.controller;
 
-import cat.itacademy.fruitapimysql.dto.FruitDto;
+import cat.itacademy.fruitapimysql.dto.fruit.FruitDtoRequest;
+import cat.itacademy.fruitapimysql.dto.fruit.FruitDtoResponse;
 import cat.itacademy.fruitapimysql.service.FruitService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +21,8 @@ public class FruitController {
     }
 
     @PostMapping
-    ResponseEntity<FruitDto> create(@Valid @RequestBody FruitDto fruitDto) {
-        FruitDto createdFruit = fruitService.createFruit(fruitDto);
+    ResponseEntity<FruitDtoResponse> create(@Valid @RequestBody FruitDtoRequest fruitDtoRequest) {
+        FruitDtoResponse createdFruit = fruitService.createFruit(fruitDtoRequest);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -34,18 +35,18 @@ public class FruitController {
     }
 
     @GetMapping
-    ResponseEntity<List<FruitDto>> getAll(){
+    ResponseEntity<List<FruitDtoResponse>> getAll(){
         return ResponseEntity.ok(fruitService.getAll());
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<FruitDto> getById(@PathVariable("id") Long id) {
+    ResponseEntity<FruitDtoResponse> getById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(fruitService.getById(id));
     }
 
     @PutMapping("/{id}")
-    ResponseEntity<FruitDto> update(@PathVariable("id") Long id, @Valid @RequestBody FruitDto fruitDto) {
-        return ResponseEntity.ok(fruitService.update(id, fruitDto));
+    ResponseEntity<FruitDtoResponse> update(@PathVariable("id") Long id, @Valid @RequestBody FruitDtoRequest fruitDtoRequest) {
+        return ResponseEntity.ok(fruitService.update(id, fruitDtoRequest));
     }
 
     @DeleteMapping("/{id}")

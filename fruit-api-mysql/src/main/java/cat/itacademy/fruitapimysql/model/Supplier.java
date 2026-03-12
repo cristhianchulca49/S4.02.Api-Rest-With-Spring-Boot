@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Entity
-@Table(name = "Suppliers")
+@Table(name = "Supplier")
 public class Supplier {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +20,7 @@ public class Supplier {
     private String name;
 
     @Setter
-    @Column(name = "county")
+    @Column(name = "country")
     private String country;
 
     @OneToMany(mappedBy = "supplier")

@@ -1,6 +1,7 @@
 package cat.itacademy.fruitapimysql.controller;
 
-import cat.itacademy.fruitapimysql.dto.SupplierDto;
+import cat.itacademy.fruitapimysql.dto.supplier.SupplierDtoRequest;
+import cat.itacademy.fruitapimysql.dto.supplier.SupplierDtoResponse;
 import cat.itacademy.fruitapimysql.service.SupplierService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +23,8 @@ public class SupplierController {
     }
 
     @PostMapping
-    public ResponseEntity<SupplierDto> create(@Valid @RequestBody SupplierDto supplierDto) {
-        SupplierDto createdSupplier = service.create(supplierDto);
+    public ResponseEntity<SupplierDtoResponse> create(@Valid @RequestBody SupplierDtoRequest supplierDtoRequest) {
+        SupplierDtoResponse createdSupplier = service.create(supplierDtoRequest);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
