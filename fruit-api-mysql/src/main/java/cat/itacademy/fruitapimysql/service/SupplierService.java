@@ -7,8 +7,10 @@ import cat.itacademy.fruitapimysql.mapper.SupplierMapper;
 import cat.itacademy.fruitapimysql.model.Supplier;
 import cat.itacademy.fruitapimysql.repository.SupplierRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 public class SupplierService {
     private final SupplierRepository supplierRepository;
 
@@ -16,6 +18,7 @@ public class SupplierService {
         this.supplierRepository = supplierRepository;
     }
 
+    @Transactional
     public SupplierDtoResponse create(SupplierDtoRequest supplierDtoRequest) {
         if (supplierRepository.existsByName(supplierDtoRequest.name())) {
             throw new ResourceAlreadyExistsException("Supplier", supplierDtoRequest.name());

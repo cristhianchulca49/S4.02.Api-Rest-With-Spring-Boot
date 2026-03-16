@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class FruitService {
     private final FruitRepository fruitRepository;
 
@@ -42,6 +43,7 @@ public class FruitService {
                 .orElseThrow(() -> new ResourceNotFoundException(id));
     }
 
+    @Transactional
     public FruitDtoResponse update(Long id, FruitDtoRequest fruitDtoRequest) {
         Fruit fruit = fruitRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         fruit.setName(fruitDtoRequest.name());
@@ -49,6 +51,7 @@ public class FruitService {
         return FruitMapper.toDto(fruitRepository.save(fruit));
     }
 
+    @Transactional
     public void delete(Long id) {
         fruitRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
         fruitRepository.deleteById(id);
