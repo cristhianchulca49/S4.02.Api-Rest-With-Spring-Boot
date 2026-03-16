@@ -38,14 +38,12 @@ public class FruitService {
     }
 
     public FruitDtoResponse getById(Long id) {
-        return fruitRepository.findById(id)
-                .map(FruitMapper::toDto)
-                .orElseThrow(() -> new ResourceNotFoundException(id));
+        return FruitMapper.toDto(validateIfFruitExists(id));
     }
 
     @Transactional
     public FruitDtoResponse update(Long id, FruitDtoRequest fruitDtoRequest) {
-        Fruit fruit = fruitRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        Fruit fruit = validateIfFruitExists(id);
         fruit.setName(fruitDtoRequest.name());
         fruit.setWeightKg(fruitDtoRequest.weightKg());
         return FruitMapper.toDto(fruitRepository.save(fruit));
@@ -53,7 +51,11 @@ public class FruitService {
 
     @Transactional
     public void delete(Long id) {
-        fruitRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(id));
+        validateIfFruitExists(id);
         fruitRepository.deleteById(id);
+    }
+
+    private Fruit validateIfFruitExists(Long id){
+        return fruitRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Fruit", id));
     }
 }
