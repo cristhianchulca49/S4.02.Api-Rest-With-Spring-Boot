@@ -6,7 +6,9 @@ import cat.itacademy.fruitapimysql.exception.ResourceAlreadyExistsException;
 import cat.itacademy.fruitapimysql.exception.ResourceNotFoundException;
 import cat.itacademy.fruitapimysql.mapper.FruitMapper;
 import cat.itacademy.fruitapimysql.model.Fruit;
+import cat.itacademy.fruitapimysql.model.Supplier;
 import cat.itacademy.fruitapimysql.repository.FruitRepository;
+import cat.itacademy.fruitapimysql.repository.SupplierRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,9 +18,11 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class FruitService {
     private final FruitRepository fruitRepository;
+    private final SupplierRepository supplierRepository;
 
-    public FruitService(FruitRepository fruitRepository) {
+    public FruitService(FruitRepository fruitRepository, SupplierRepository supplierRepository) {
         this.fruitRepository = fruitRepository;
+        this.supplierRepository = supplierRepository;
     }
 
     @Transactional
@@ -27,7 +31,10 @@ public class FruitService {
             throw new ResourceAlreadyExistsException("Fruit", fruitDtoRequest.name());
         }
 
-        Fruit fruitSaved = fruitRepository.save(FruitMapper.toEntity(fruitDtoRequest));
+        Supplier supplier = supplierRepository.findById(fruitDtoRequest.supplierId())
+                .orElseThrow(() -> new ResourceNotFoundException("Supplier", fruitDtoRequest.supplierId()));
+
+        Fruit fruitSaved = fruitRepository.save(FruitMapper.toEntity(fruitDtoRequest, supplier));
         return FruitMapper.toDto(fruitSaved);
     }
 
