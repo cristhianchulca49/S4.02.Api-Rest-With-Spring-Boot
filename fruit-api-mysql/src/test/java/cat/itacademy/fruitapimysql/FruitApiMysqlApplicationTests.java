@@ -39,7 +39,10 @@ class FruitApiMysqlApplicationTests {
         supplierRepository.deleteAll();
     }
 
+    // ── SUPPLIER ────────────────────────────────────────────────────────────
+
     @Test
+    @DisplayName("Create supplier should return 201")
     void shouldCreateSupplierAndReturn201() {
         SupplierDtoRequest supplierDtoRequest = new SupplierDtoRequest("Carrefour", "Spain");
         given()
@@ -55,6 +58,7 @@ class FruitApiMysqlApplicationTests {
     }
 
     @Test
+    @DisplayName("Create supplier with existing name should return 409")
     void create_shouldReturn409WhenSupplierNameAlreadyExists() {
         SupplierDtoRequest supplierDtoRequest = new SupplierDtoRequest("Carrefour", "Spain");
         SupplierDtoRequest supplierDuplicated = new SupplierDtoRequest("Carrefour", "Equator");
@@ -75,8 +79,9 @@ class FruitApiMysqlApplicationTests {
     }
 
     @Test
+    @DisplayName("Create supplier with blank name should return 400")
     void create_shouldReturn400WhenNameIsBlank() {
-        SupplierDtoRequest supplierDtoRequest = new SupplierDtoRequest("", "Spain"); // ✅ nombre vacío
+        SupplierDtoRequest supplierDtoRequest = new SupplierDtoRequest("", "Spain");
 
         given()
                 .contentType(ContentType.JSON)
@@ -85,8 +90,10 @@ class FruitApiMysqlApplicationTests {
                 .post("/suppliers")
                 .then()
                 .statusCode(400)
-                .body("errors.name", containsStringIgnoringCase("name cannot be in blank"));
+                .body("errors.name", containsStringIgnoringCase("name cannot be empty"));
     }
+
+    // ── FRUIT ───────────────────────────────────────────────────────────────
 
     @Test
     @DisplayName("Create fruit with existing supplier should return 201")
@@ -117,5 +124,35 @@ class FruitApiMysqlApplicationTests {
                 .body("supplierDtoResponse.id", is(supplierId.intValue()))
                 .body("supplierDtoResponse.name", is(supplierDtoRequest.name()))
                 .body("supplierDtoResponse.country", is(supplierDtoRequest.country()));
+    }
+
+    @Test
+    @DisplayName("Create fruit with non existing supplier should return 404")
+    void createFruit_shouldReturn404() {
+        FruitDtoRequest fruitDtoRequest = new FruitDtoRequest("Watermelon", 3.5, 999L); // 👈 999L deja claro que no existe
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(fruitDtoRequest)
+                .when()
+                .post("/fruits")
+                .then()
+                .statusCode(404)
+                .body("message", containsStringIgnoringCase("Supplier with id: 999 not found"));
+    }
+
+    @Test
+    @DisplayName("Create fruit with null supplierId should return 400")
+    void createFruit_shouldReturn400WhenSupplierIdIsNull() {
+        FruitDtoRequest fruitDtoRequest = new FruitDtoRequest("Watermelon", 3.5, null);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(fruitDtoRequest)
+                .when()
+                .post("/fruits")
+                .then()
+                .statusCode(400)
+                .body("errors.supplierId", containsStringIgnoringCase("Supplier id cannot be empty"));
     }
 }
