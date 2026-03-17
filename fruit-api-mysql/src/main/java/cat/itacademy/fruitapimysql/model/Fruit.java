@@ -22,7 +22,7 @@ public class Fruit {
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "supplier_id")
+    @JoinColumn(name = "supplier_id", nullable = false)
     private Supplier supplier;
 
     public Fruit(String name, Double weightKg, Supplier suppliers) {
