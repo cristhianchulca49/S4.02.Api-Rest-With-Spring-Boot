@@ -23,19 +23,16 @@ public class FruitController {
     @PostMapping
     ResponseEntity<FruitDtoResponse> create(@Valid @RequestBody FruitDtoRequest fruitDtoRequest) {
         FruitDtoResponse createdFruit = fruitService.createFruit(fruitDtoRequest);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(createdFruit.id())
-                .toUri();
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(createdFruit.id()).toUri();
 
-        return ResponseEntity
-                .created(location)
-                .body(createdFruit);
+        return ResponseEntity.created(location).body(createdFruit);
     }
 
     @GetMapping
-    ResponseEntity<List<FruitDtoResponse>> getAll(){
+    ResponseEntity<List<FruitDtoResponse>> getAll(@RequestParam(required = false) Long supplierId) {
+        if(supplierId != null) {
+            return ResponseEntity.ok(fruitService.getBySupplierId(supplierId));
+        }
         return ResponseEntity.ok(fruitService.getAll());
     }
 
