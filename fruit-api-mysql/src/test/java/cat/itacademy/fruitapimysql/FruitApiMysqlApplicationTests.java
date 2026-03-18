@@ -1,6 +1,7 @@
 package cat.itacademy.fruitapimysql;
 
 import cat.itacademy.fruitapimysql.dto.fruit.FruitDtoRequest;
+import cat.itacademy.fruitapimysql.dto.fruit.FruitDtoResponse;
 import cat.itacademy.fruitapimysql.dto.supplier.SupplierDtoRequest;
 import cat.itacademy.fruitapimysql.repository.FruitRepository;
 import cat.itacademy.fruitapimysql.repository.SupplierRepository;
@@ -14,9 +15,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.util.List;
+
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.containsStringIgnoringCase;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 
 @ActiveProfiles("test")
@@ -90,7 +92,7 @@ class FruitApiMysqlApplicationTests {
                 .post("/suppliers")
                 .then()
                 .statusCode(400)
-                .body("errors.name", containsStringIgnoringCase("name cannot be empty"));
+                .body("errors.name", containsStringIgnoringCase("name cannot be in blank"));
     }
 
     // ── FRUIT ───────────────────────────────────────────────────────────────
@@ -104,7 +106,6 @@ class FruitApiMysqlApplicationTests {
                 .body(supplierDtoRequest)
                 .post("/suppliers")
                 .then()
-                .statusCode(201)
                 .extract()
                 .jsonPath()
                 .getLong("id");
@@ -154,5 +155,50 @@ class FruitApiMysqlApplicationTests {
                 .then()
                 .statusCode(400)
                 .body("errors.supplierId", containsStringIgnoringCase("Supplier id cannot be empty"));
+    }
+
+    //GET FRUITS
+
+    @Test
+    @DisplayName("Get fruits by supplier and should return 200")
+    void getFruitsBySupplier() {
+        SupplierDtoRequest supplierDtoRequest = new SupplierDtoRequest("Carrefour", "Spain");
+        Long supplierId = given()
+                .contentType(ContentType.JSON)
+                .body(supplierDtoRequest)
+                .post("/suppliers")
+                .then()
+                .extract()
+                .jsonPath()
+                .getLong("id");
+
+        List<FruitDtoRequest> fruits = List.of(new FruitDtoRequest("Watermelon", 3.3, supplierId),
+                                               new FruitDtoRequest("Banana", 34.3, supplierId));
+
+        fruits.forEach(fruit ->
+                given()
+                        .contentType(ContentType.JSON)
+                        .body(fruit)
+                        .post("/fruits"));
+
+        given()
+                .when()
+                .get("/fruits?supplierId={id}", supplierId)
+                .then()
+                .statusCode(200)
+                .body("$", hasSize(fruits.size()))
+                .body("name",hasItems("Watermelon", "Banana"));
+    }
+
+    @Test
+    @DisplayName("Get Fruits by non existing supplier should return 404")
+    void getFruitsBySupplier_shouldReturn404() {
+        given()
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/fruits?supplierId=999")
+                .then()
+                .statusCode(404)
+                .body("message", containsStringIgnoringCase("Supplier with id: 999 not found"));
     }
 }

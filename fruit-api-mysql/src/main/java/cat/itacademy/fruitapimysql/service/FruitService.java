@@ -31,8 +31,7 @@ public class FruitService {
             throw new ResourceAlreadyExistsException("Fruit", fruitDtoRequest.name());
         }
 
-        Supplier supplier = supplierRepository.findById(fruitDtoRequest.supplierId())
-                .orElseThrow(() -> new ResourceNotFoundException("Supplier", fruitDtoRequest.supplierId()));
+        Supplier supplier = validateIfSupplierExists(fruitDtoRequest.supplierId());
 
         Fruit fruitSaved = fruitRepository.save(FruitMapper.toEntity(fruitDtoRequest, supplier));
         return FruitMapper.toDto(fruitSaved);
@@ -58,11 +57,22 @@ public class FruitService {
 
     @Transactional
     public void delete(Long id) {
-        validateIfFruitExists(id);
-        fruitRepository.deleteById(id);
+        Fruit fruit = validateIfFruitExists(id);
+        fruitRepository.delete(fruit);
     }
 
     private Fruit validateIfFruitExists(Long id){
         return fruitRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Fruit", id));
+    }
+
+    private Supplier validateIfSupplierExists(Long id){
+        return supplierRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Supplier", id));
+    }
+
+    public List<FruitDtoResponse> getBySupplierId(Long id) {
+        Supplier supplier = validateIfSupplierExists(id);
+        return fruitRepository.findAllBySupplier(supplier).stream()
+                .map(FruitMapper::toDto)
+                .toList();
     }
 }
