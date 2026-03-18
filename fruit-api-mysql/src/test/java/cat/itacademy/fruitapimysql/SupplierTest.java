@@ -1,9 +1,12 @@
 package cat.itacademy.fruitapimysql;
 
+import cat.itacademy.fruitapimysql.dto.fruit.FruitDtoRequest;
 import cat.itacademy.fruitapimysql.dto.supplier.SupplierDtoRequest;
+import cat.itacademy.fruitapimysql.repository.FruitRepository;
 import cat.itacademy.fruitapimysql.repository.SupplierRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,11 +26,15 @@ public class SupplierTest {
     private int randomPort;
 
     @Autowired
+    private FruitRepository fruitRepository;
+
+    @Autowired
     private SupplierRepository supplierRepository;
 
     @BeforeEach
     void setUp() {
         RestAssured.port = randomPort;
+        fruitRepository.deleteAll();
         supplierRepository.deleteAll();
     }
 
@@ -94,7 +101,6 @@ public class SupplierTest {
                 .body(new SupplierDtoRequest("Carrefour", "Spain"))
                 .post("/suppliers")
                 .then()
-                .statusCode(201)
                 .extract().jsonPath().getLong("id");
 
         given()
@@ -159,5 +165,63 @@ public class SupplierTest {
                 .then()
                 .statusCode(409)
                 .body("message", containsStringIgnoringCase("Supplier with name Carrefour already exists"));
+    }
+
+    //DELETE SUPPLIER
+    @Test
+    @DisplayName("Delete supplier should return 204")
+    void deleteSupplier_shouldReturn204() {
+        SupplierDtoRequest supplierDtoRequest = new SupplierDtoRequest("Carrefour", "Spain");
+        Long supplierId = given()
+                .contentType(ContentType.JSON)
+                .body(supplierDtoRequest)
+                .post("/suppliers")
+                .then()
+                .statusCode(201)
+                .extract().jsonPath().getLong("id");
+
+        given()
+                .when()
+                .delete("/suppliers/{id}", supplierId)
+                .then()
+                .statusCode(204);
+    }
+
+    @Test
+    @DisplayName("Delete unexisting Supplier should return 404")
+    void deleteSupplier_shouldReturn404() {
+        given()
+                .when()
+                .delete("/suppliers/{id}", 999L)
+                .then()
+                .statusCode(404)
+                .body("message", containsStringIgnoringCase("Supplier with id: 999 not found"));
+    }
+
+    @Test
+    @DisplayName("Delete when Supplier has fruits associated return 400")
+    void deleteSupplier_shouldReturn400() {
+        SupplierDtoRequest supplierDtoRequest = new SupplierDtoRequest("Carrefour", "Spain");
+
+        Long supplierId = given()
+                .contentType(ContentType.JSON)
+                .body(supplierDtoRequest)
+                .post("/suppliers")
+                .then()
+                .extract().jsonPath().getLong("id");
+
+        FruitDtoRequest fruitDtoRequest = new FruitDtoRequest("Pineapple", 3.4, supplierId);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(fruitDtoRequest)
+                .post("/fruits");
+
+        given()
+                .when()
+                .delete("/suppliers/{id}", supplierId)
+                .then()
+                .statusCode(400)
+                .body("message", containsStringIgnoringCase("Supplier with id: " + supplierId + " has fruits associated"));
     }
 }
