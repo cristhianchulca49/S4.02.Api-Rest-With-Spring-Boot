@@ -13,15 +13,15 @@ import java.net.URI;
 @RestController
 @RequestMapping("/suppliers")
 public class SupplierController {
-    private final SupplierService service;
+    private final SupplierService supplierService;
 
-    public SupplierController(SupplierService service) {
-        this.service = service;
+    public SupplierController(SupplierService supplierService) {
+        this.supplierService = supplierService;
     }
 
     @PostMapping
     public ResponseEntity<SupplierDtoResponse> create(@Valid @RequestBody SupplierDtoRequest supplierDtoRequest) {
-        SupplierDtoResponse createdSupplier = service.create(supplierDtoRequest);
+        SupplierDtoResponse createdSupplier = supplierService.create(supplierDtoRequest);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -32,6 +32,12 @@ public class SupplierController {
 
     @PutMapping("{id}")
     ResponseEntity<SupplierDtoResponse> update(@PathVariable Long id, @Valid @RequestBody SupplierDtoRequest supplierDtoRequest) {
-        return ResponseEntity.ok(service.update(id, supplierDtoRequest));
+        return ResponseEntity.ok(supplierService.update(id, supplierDtoRequest));
+    }
+
+    @DeleteMapping("{id}")
+    ResponseEntity<Void> delete(@PathVariable Long id) {
+        supplierService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
