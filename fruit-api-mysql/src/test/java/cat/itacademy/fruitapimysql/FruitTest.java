@@ -1,7 +1,6 @@
 package cat.itacademy.fruitapimysql;
 
 import cat.itacademy.fruitapimysql.dto.fruit.FruitDtoRequest;
-import cat.itacademy.fruitapimysql.dto.fruit.FruitDtoResponse;
 import cat.itacademy.fruitapimysql.dto.supplier.SupplierDtoRequest;
 import cat.itacademy.fruitapimysql.repository.FruitRepository;
 import cat.itacademy.fruitapimysql.repository.SupplierRepository;
@@ -23,7 +22,7 @@ import static org.hamcrest.core.Is.is;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class FruitApiMysqlApplicationTests {
+class FruitTest {
 
     @LocalServerPort
     private int randomPort;
@@ -39,60 +38,6 @@ class FruitApiMysqlApplicationTests {
         RestAssured.port = randomPort;
         fruitRepository.deleteAll();
         supplierRepository.deleteAll();
-    }
-
-    // ── SUPPLIER ────────────────────────────────────────────────────────────
-
-    @Test
-    @DisplayName("Create supplier should return 201")
-    void shouldCreateSupplierAndReturn201() {
-        SupplierDtoRequest supplierDtoRequest = new SupplierDtoRequest("Carrefour", "Spain");
-        given()
-                .contentType(ContentType.JSON)
-                .body(supplierDtoRequest)
-                .when()
-                .post("/suppliers")
-                .then()
-                .statusCode(201)
-                .body("id", notNullValue())
-                .body("name", is(supplierDtoRequest.name()))
-                .body("country", is(supplierDtoRequest.country()));
-    }
-
-    @Test
-    @DisplayName("Create supplier with existing name should return 409")
-    void create_shouldReturn409WhenSupplierNameAlreadyExists() {
-        SupplierDtoRequest supplierDtoRequest = new SupplierDtoRequest("Carrefour", "Spain");
-        SupplierDtoRequest supplierDuplicated = new SupplierDtoRequest("Carrefour", "Equator");
-
-        given()
-                .contentType(ContentType.JSON)
-                .body(supplierDtoRequest)
-                .post("/suppliers");
-
-        given()
-                .contentType(ContentType.JSON)
-                .body(supplierDuplicated)
-                .when()
-                .post("/suppliers")
-                .then()
-                .statusCode(409)
-                .body("message", containsStringIgnoringCase("Supplier with name Carrefour already exists"));
-    }
-
-    @Test
-    @DisplayName("Create supplier with blank name should return 400")
-    void create_shouldReturn400WhenNameIsBlank() {
-        SupplierDtoRequest supplierDtoRequest = new SupplierDtoRequest("", "Spain");
-
-        given()
-                .contentType(ContentType.JSON)
-                .body(supplierDtoRequest)
-                .when()
-                .post("/suppliers")
-                .then()
-                .statusCode(400)
-                .body("errors.name", containsStringIgnoringCase("name cannot be in blank"));
     }
 
     // ── FRUIT ───────────────────────────────────────────────────────────────
@@ -173,7 +118,7 @@ class FruitApiMysqlApplicationTests {
                 .getLong("id");
 
         List<FruitDtoRequest> fruits = List.of(new FruitDtoRequest("Watermelon", 3.3, supplierId),
-                                               new FruitDtoRequest("Banana", 34.3, supplierId));
+                new FruitDtoRequest("Banana", 34.3, supplierId));
 
         fruits.forEach(fruit ->
                 given()
@@ -187,7 +132,7 @@ class FruitApiMysqlApplicationTests {
                 .then()
                 .statusCode(200)
                 .body("$", hasSize(fruits.size()))
-                .body("name",hasItems("Watermelon", "Banana"));
+                .body("name", hasItems("Watermelon", "Banana"));
     }
 
     @Test
