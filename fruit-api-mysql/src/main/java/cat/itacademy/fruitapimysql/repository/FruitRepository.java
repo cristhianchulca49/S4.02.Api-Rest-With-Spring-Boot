@@ -10,5 +10,8 @@ import java.util.List;
 
 public interface FruitRepository extends JpaRepository<Fruit, Long> {
     boolean existsByName(String name);
+
     List<Fruit> findAllBySupplier(Supplier supplier);
+
+    boolean existsBySupplier(Supplier supplier);
 }
