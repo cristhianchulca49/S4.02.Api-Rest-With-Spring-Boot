@@ -1,0 +1,15 @@
+services:
+  mongo:
+    image: mongo:7.0
+    container_name: fruit-order-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: fruituser
+      MONGO_INITDB_ROOT_PASSWORD: fruitpass
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
