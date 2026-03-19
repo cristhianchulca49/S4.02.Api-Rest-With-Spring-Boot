@@ -1,14 +1,16 @@
 package cat.itacademy.fruitorderapimongo.service;
 
-import cat.itacademy.fruitorderapimongo.dto.supplier.SupplierDtoRequest;
-import cat.itacademy.fruitorderapimongo.dto.supplier.SupplierDtoResponse;
-import cat.itacademy.fruitorderapimongo.exception.ResourceAlreadyExistsException;
-import cat.itacademy.fruitorderapimongo.exception.ResourceHasDependenciesException;
-import cat.itacademy.fruitorderapimongo.exception.ResourceNotFoundException;
-import cat.itacademy.fruitorderapimongo.mapper.SupplierMapper;
-import cat.itacademy.fruitorderapimongo.model.Supplier;
-import cat.itacademy.fruitorderapimongo.repository.FruitRepository;
-import cat.itacademy.fruitorderapimongo.repository.SupplierRepository;
+import cat.itacademy.fruitorderapimongo.infrastructure.dto.supplier.SupplierDtoRequest;
+import cat.itacademy.fruitorderapimongo.infrastructure.dto.supplier.SupplierDtoResponse;
+import cat.itacademy.fruitorderapimongo.domain.model.valueobject.Country;
+import cat.itacademy.fruitorderapimongo.domain.model.valueobject.Name;
+import cat.itacademy.fruitorderapimongo.infrastructure.exception.ResourceAlreadyExistsException;
+import cat.itacademy.fruitorderapimongo.infrastructure.exception.ResourceHasDependenciesException;
+import cat.itacademy.fruitorderapimongo.infrastructure.exception.ResourceNotFoundException;
+import cat.itacademy.fruitorderapimongo.infrastructure.mapper.SupplierMapper;
+import cat.itacademy.fruitorderapimongo.domain.model.Supplier;
+import cat.itacademy.fruitorderapimongo.infrastructure.adapter.out.persistence.FruitRepository;
+import cat.itacademy.fruitorderapimongo.infrastructure.adapter.out.persistence.SupplierRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +27,8 @@ public class SupplierService {
 
     @Transactional
     public SupplierDtoResponse create(SupplierDtoRequest supplierDtoRequest) {
-        if (supplierRepository.existsByName(supplierDtoRequest.name())) {
+        Name supplierName = Name.of(supplierDtoRequest.name());
+        if (supplierRepository.existsByName(supplierName)) {
             throw new ResourceAlreadyExistsException("Supplier", supplierDtoRequest.name());
         }
         Supplier supplier = supplierRepository.save(SupplierMapper.toEntity(supplierDtoRequest));
@@ -36,13 +39,14 @@ public class SupplierService {
     public SupplierDtoResponse update(String id, SupplierDtoRequest supplierDtoRequest) {
         Supplier supplier = verifySupplierExists(id);
 
-        if (!supplier.getName().equalsIgnoreCase(supplierDtoRequest.name()) &&
-                supplierRepository.existsByName(supplierDtoRequest.name())) {
+        Name supplierName = Name.of(supplierDtoRequest.name());
+        if (!supplier.getName().getValue().equalsIgnoreCase(supplierDtoRequest.name()) &&
+                supplierRepository.existsByName(supplierName)) {
             throw new ResourceAlreadyExistsException("Supplier", supplierDtoRequest.name());
         }
 
-        supplier.setName(supplierDtoRequest.name());
-        supplier.setCountry(supplierDtoRequest.country());
+        supplier.changeName(supplierName);
+        supplier.changeCountry(Country.of(supplierDtoRequest.country()));
         return SupplierMapper.toDto(supplierRepository.save(supplier));
     }
 

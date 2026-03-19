@@ -1,14 +1,16 @@
 package cat.itacademy.fruitorderapimongo.service;
 
-import cat.itacademy.fruitorderapimongo.dto.fruit.FruitDtoRequest;
-import cat.itacademy.fruitorderapimongo.dto.fruit.FruitDtoResponse;
-import cat.itacademy.fruitorderapimongo.exception.ResourceAlreadyExistsException;
-import cat.itacademy.fruitorderapimongo.exception.ResourceNotFoundException;
-import cat.itacademy.fruitorderapimongo.mapper.FruitMapper;
-import cat.itacademy.fruitorderapimongo.model.Fruit;
-import cat.itacademy.fruitorderapimongo.model.Supplier;
-import cat.itacademy.fruitorderapimongo.repository.FruitRepository;
-import cat.itacademy.fruitorderapimongo.repository.SupplierRepository;
+import cat.itacademy.fruitorderapimongo.infrastructure.dto.fruit.FruitDtoRequest;
+import cat.itacademy.fruitorderapimongo.infrastructure.dto.fruit.FruitDtoResponse;
+import cat.itacademy.fruitorderapimongo.domain.model.valueobject.Name;
+import cat.itacademy.fruitorderapimongo.domain.model.valueobject.PricePerKg;
+import cat.itacademy.fruitorderapimongo.infrastructure.exception.ResourceAlreadyExistsException;
+import cat.itacademy.fruitorderapimongo.infrastructure.exception.ResourceNotFoundException;
+import cat.itacademy.fruitorderapimongo.infrastructure.mapper.FruitMapper;
+import cat.itacademy.fruitorderapimongo.domain.model.Fruit;
+import cat.itacademy.fruitorderapimongo.domain.model.Supplier;
+import cat.itacademy.fruitorderapimongo.infrastructure.adapter.out.persistence.FruitRepository;
+import cat.itacademy.fruitorderapimongo.infrastructure.adapter.out.persistence.SupplierRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +29,8 @@ public class FruitService {
 
     @Transactional
     public FruitDtoResponse createFruit(FruitDtoRequest fruitDtoRequest) {
-        if (fruitRepository.existsByName(fruitDtoRequest.name())) {
+        Name fruitName = Name.of(fruitDtoRequest.name());
+        if (fruitRepository.existsByName(fruitName)) {
             throw new ResourceAlreadyExistsException("Fruit", fruitDtoRequest.name());
         }
 
@@ -50,8 +53,8 @@ public class FruitService {
     @Transactional
     public FruitDtoResponse update(String id, FruitDtoRequest fruitDtoRequest) {
         Fruit fruit = validateIfFruitExists(id);
-        fruit.setName(fruitDtoRequest.name());
-        fruit.setWeightKg(fruitDtoRequest.weightKg());
+        fruit.changeName(Name.of(fruitDtoRequest.name()));
+        fruit.changePrice(PricePerKg.of(fruitDtoRequest.weightKg()));
         return FruitMapper.toDto(fruitRepository.save(fruit));
     }
 
