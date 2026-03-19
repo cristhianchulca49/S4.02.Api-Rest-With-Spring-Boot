@@ -1,8 +1,14 @@
 package cat.itacademy.fruitorderapimongo.infrastructure.adapter.in.rest;
 
+import cat.itacademy.fruitorderapimongo.domain.model.Fruit;
+import cat.itacademy.fruitorderapimongo.domain.usecase.CreateFruitUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.DeleteFruitUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.GetAllFruitsUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.GetFruitByIdUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.UpdateFruitUseCase;
 import cat.itacademy.fruitorderapimongo.infrastructure.dto.fruit.FruitDtoRequest;
 import cat.itacademy.fruitorderapimongo.infrastructure.dto.fruit.FruitDtoResponse;
-import cat.itacademy.fruitorderapimongo.service.FruitService;
+import cat.itacademy.fruitorderapimongo.infrastructure.mapper.FruitMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,45 +16,58 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/fruits")
 public class FruitController {
-    private final FruitService fruitService;
+    private final CreateFruitUseCase createFruitUseCase;
+    private final GetAllFruitsUseCase getAllFruitsUseCase;
+    private final GetFruitByIdUseCase getFruitByIdUseCase;
+    private final UpdateFruitUseCase updateFruitUseCase;
+    private final DeleteFruitUseCase deleteFruitUseCase;
 
-    public FruitController(FruitService fruitService) {
-        this.fruitService = fruitService;
+    public FruitController(CreateFruitUseCase createFruitUseCase,
+                           GetAllFruitsUseCase getAllFruitsUseCase,
+                           GetFruitByIdUseCase getFruitByIdUseCase,
+                           UpdateFruitUseCase updateFruitUseCase,
+                           DeleteFruitUseCase deleteFruitUseCase) {
+        this.createFruitUseCase = createFruitUseCase;
+        this.getAllFruitsUseCase = getAllFruitsUseCase;
+        this.getFruitByIdUseCase = getFruitByIdUseCase;
+        this.updateFruitUseCase = updateFruitUseCase;
+        this.deleteFruitUseCase = deleteFruitUseCase;
     }
 
     @PostMapping
     ResponseEntity<FruitDtoResponse> create(@Valid @RequestBody FruitDtoRequest fruitDtoRequest) {
-        FruitDtoResponse createdFruit = fruitService.createFruit(fruitDtoRequest);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(createdFruit.id()).toUri();
+        Fruit createdFruit = createFruitUseCase.execute(fruitDtoRequest.name(), fruitDtoRequest.weightKg(), fruitDtoRequest.supplierId());
+        FruitDtoResponse response = FruitMapper.toDto(createdFruit);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.id()).toUri();
 
-        return ResponseEntity.created(location).body(createdFruit);
+        return ResponseEntity.created(location).body(response);
     }
 
     @GetMapping
     ResponseEntity<List<FruitDtoResponse>> getAll(@RequestParam(required = false) String supplierId) {
-        if(supplierId != null) {
-            return ResponseEntity.ok(fruitService.getBySupplierId(supplierId));
-        }
-        return ResponseEntity.ok(fruitService.getAll());
+        return ResponseEntity.ok(getAllFruitsUseCase.execute(Optional.ofNullable(supplierId)).stream()
+                .map(FruitMapper::toDto)
+                .toList());
     }
 
     @GetMapping("/{id}")
     ResponseEntity<FruitDtoResponse> getById(@PathVariable String id) {
-        return ResponseEntity.ok(fruitService.getById(id));
+        return ResponseEntity.ok(FruitMapper.toDto(getFruitByIdUseCase.execute(id)));
     }
 
     @PutMapping("/{id}")
     ResponseEntity<FruitDtoResponse> update(@PathVariable String id, @Valid @RequestBody FruitDtoRequest fruitDtoRequest) {
-        return ResponseEntity.ok(fruitService.update(id, fruitDtoRequest));
+        return ResponseEntity.ok(FruitMapper.toDto(updateFruitUseCase.execute(id, fruitDtoRequest.name(), fruitDtoRequest.weightKg())));
     }
 
     @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(@PathVariable String id){
-        fruitService.delete(id);
+        deleteFruitUseCase.execute(id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -13,5 +13,7 @@ public interface FruitRepository extends MongoRepository<Fruit, String> {
 
     List<Fruit> findAllBySupplier(Supplier supplier);
 
+    List<Fruit> findAllBySupplier_Id(String supplierId);
+
     boolean existsBySupplier(Supplier supplier);
 }
