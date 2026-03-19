@@ -1,6 +1,6 @@
 package cat.itacademy.fruitorderapimongo.domain.model.valueobject;
 
-import cat.itacademy.fruitorderapimongo.infrastructure.exception.InvalidPriceException;
+import cat.itacademy.fruitorderapimongo.domain.exception.InvalidPriceException;
 import lombok.Getter;
 
 @Getter

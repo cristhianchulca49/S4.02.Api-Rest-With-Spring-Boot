@@ -1,6 +1,6 @@
 package cat.itacademy.fruitorderapimongo.domain.model.valueobject;
 
-import cat.itacademy.fruitorderapimongo.infrastructure.exception.InvalidNameException;
+import cat.itacademy.fruitorderapimongo.domain.exception.InvalidNameException;
 import lombok.Getter;
 
 @Getter

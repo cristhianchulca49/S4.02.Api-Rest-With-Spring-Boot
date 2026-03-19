@@ -1,6 +1,6 @@
 package cat.itacademy.fruitorderapimongo.domain.model.valueobject;
 
-import cat.itacademy.fruitorderapimongo.infrastructure.exception.InvalidDateException;
+import cat.itacademy.fruitorderapimongo.domain.exception.InvalidDateException;
 import lombok.Getter;
 
 import java.time.LocalDate;

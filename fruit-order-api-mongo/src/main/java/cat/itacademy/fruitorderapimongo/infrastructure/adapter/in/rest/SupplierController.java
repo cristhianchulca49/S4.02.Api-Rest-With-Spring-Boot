@@ -1,14 +1,14 @@
 package cat.itacademy.fruitorderapimongo.infrastructure.adapter.in.rest;
 
 import cat.itacademy.fruitorderapimongo.domain.model.Supplier;
-import cat.itacademy.fruitorderapimongo.domain.usecase.supplier.CreateSupplierUseCase;
-import cat.itacademy.fruitorderapimongo.domain.usecase.supplier.DeleteSupplierUseCase;
-import cat.itacademy.fruitorderapimongo.domain.usecase.supplier.GetAllSuppliersUseCase;
-import cat.itacademy.fruitorderapimongo.domain.usecase.supplier.GetSupplierByIdUseCase;
-import cat.itacademy.fruitorderapimongo.domain.usecase.supplier.UpdateSupplierUseCase;
-import cat.itacademy.fruitorderapimongo.infrastructure.dto.supplier.SupplierDtoRequest;
-import cat.itacademy.fruitorderapimongo.infrastructure.dto.supplier.SupplierDtoResponse;
-import cat.itacademy.fruitorderapimongo.infrastructure.mapper.SupplierMapper;
+import cat.itacademy.fruitorderapimongo.application.usecase.supplier.CreateSupplierUseCase;
+import cat.itacademy.fruitorderapimongo.application.usecase.supplier.DeleteSupplierUseCase;
+import cat.itacademy.fruitorderapimongo.application.usecase.supplier.GetAllSuppliersUseCase;
+import cat.itacademy.fruitorderapimongo.application.usecase.supplier.GetSupplierByIdUseCase;
+import cat.itacademy.fruitorderapimongo.application.usecase.supplier.UpdateSupplierUseCase;
+import cat.itacademy.fruitorderapimongo.application.dto.supplier.SupplierDtoRequest;
+import cat.itacademy.fruitorderapimongo.application.dto.supplier.SupplierDtoResponse;
+import cat.itacademy.fruitorderapimongo.application.mapper.SupplierMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
