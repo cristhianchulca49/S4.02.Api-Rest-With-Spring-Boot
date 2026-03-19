@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class CreateOrderUseCase {
@@ -26,17 +28,26 @@ public class CreateOrderUseCase {
 
     @Transactional
     public Order execute(String clientName, LocalDate deliveryDate, List<OrderItemInput> items) {
-        List<OrderItem> orderItems = items.stream()
-                .map(item -> new OrderItem(resolveFruit(item.fruitId()), item.quantityInKg()))
+        List<String> fruitsId = items.stream()
+                .map(OrderItemInput::fruitId)
+                .distinct()
                 .toList();
 
-        Order order = new Order(Name.of(clientName), DataOrder.of(deliveryDate), orderItems);
-        return orderRepositoryPort.save(order);
-    }
+        Map<String, Fruit> fruitsFounded = fruitRepositoryPort.findAllById(fruitsId)
+                .stream().collect(Collectors.toMap(Fruit::getId, fruit -> fruit));
 
-    private Fruit resolveFruit(String fruitId) {
-        return fruitRepositoryPort.findById(fruitId)
-                .orElseThrow(() -> new ResourceNotFoundException("Fruit", fruitId));
+        fruitsId.forEach(id -> {
+            if (!fruitsFounded.containsKey(id)) {
+                throw new ResourceNotFoundException("Fruit", id);
+            }
+        });
+
+        List<OrderItem> orderItems = items.stream()
+                .map(item -> new OrderItem(fruitsFounded.get(item.fruitId()), item.quantityInKg()))
+                .toList();
+
+        Order order = new Order(Name.of(clientName), DataOrder.of(deliveryDate), orderItems );
+        return orderRepositoryPort.save(order);
     }
 
     public record OrderItemInput(String fruitId, Double quantityInKg) {

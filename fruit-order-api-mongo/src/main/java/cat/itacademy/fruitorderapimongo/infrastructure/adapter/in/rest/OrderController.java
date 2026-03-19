@@ -6,6 +6,7 @@ import cat.itacademy.fruitorderapimongo.application.dto.order.OrderDtoRequest;
 import cat.itacademy.fruitorderapimongo.application.dto.order.OrderDtoResponse;
 import cat.itacademy.fruitorderapimongo.application.mapper.OrderMapper;
 import cat.itacademy.fruitorderapimongo.application.usecase.order.CreateOrderUseCase.OrderItemInput;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +26,7 @@ public class OrderController {
     }
 
     @PostMapping
-    ResponseEntity<OrderDtoResponse> createOrder(@RequestBody OrderDtoRequest order){
+    ResponseEntity<OrderDtoResponse> createOrder(@RequestBody @Valid OrderDtoRequest order){
         Order createdOrder = createOrderUseCase.execute(
                 order.clientName(),
                 order.deliveryDate(),
