@@ -1,6 +1,7 @@
 package cat.itacademy.fruitorderapimongo.infrastructure.adapter.in.rest;
 
 import cat.itacademy.fruitorderapimongo.application.usecase.order.GetAllOrdersUseCase;
+import cat.itacademy.fruitorderapimongo.application.usecase.order.GetOrderByIdUseCase;
 import cat.itacademy.fruitorderapimongo.domain.model.order.Order;
 import cat.itacademy.fruitorderapimongo.application.usecase.order.CreateOrderUseCase;
 import cat.itacademy.fruitorderapimongo.application.dto.order.OrderDtoRequest;
@@ -20,10 +21,12 @@ import java.util.List;
 public class OrderController {
     private final CreateOrderUseCase createOrderUseCase;
     private final GetAllOrdersUseCase getAllOrdersUseCase;
+    private final GetOrderByIdUseCase getOrderByIdUseCase;
 
-    public OrderController(CreateOrderUseCase createOrderUseCase, GetAllOrdersUseCase getAllOrdersUseCase) {
+    public OrderController(CreateOrderUseCase createOrderUseCase, GetAllOrdersUseCase getAllOrdersUseCase, GetOrderByIdUseCase getOrderByIdUseCase) {
         this.createOrderUseCase = createOrderUseCase;
         this.getAllOrdersUseCase = getAllOrdersUseCase;
+        this.getOrderByIdUseCase = getOrderByIdUseCase;
     }
 
     @PostMapping
@@ -46,6 +49,13 @@ public class OrderController {
         List<OrderDtoResponse> response = orders.stream()
                 .map(OrderMapper::toDto)
                 .toList();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("{id}")
+    ResponseEntity<OrderDtoResponse> getOrderById(@PathVariable String id){
+        Order order = getOrderByIdUseCase.execute(id);
+        OrderDtoResponse response = OrderMapper.toDto(order);
         return ResponseEntity.ok(response);
     }
 }
