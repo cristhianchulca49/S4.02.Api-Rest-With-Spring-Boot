@@ -1,11 +1,11 @@
 package cat.itacademy.fruitorderapimongo.infrastructure.adapter.in.rest;
 
 import cat.itacademy.fruitorderapimongo.domain.model.Supplier;
-import cat.itacademy.fruitorderapimongo.domain.usecase.CreateSupplierUseCase;
-import cat.itacademy.fruitorderapimongo.domain.usecase.DeleteSupplierUseCase;
-import cat.itacademy.fruitorderapimongo.domain.usecase.GetAllSuppliersUseCase;
-import cat.itacademy.fruitorderapimongo.domain.usecase.GetSupplierByIdUseCase;
-import cat.itacademy.fruitorderapimongo.domain.usecase.UpdateSupplierUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.supplier.CreateSupplierUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.supplier.DeleteSupplierUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.supplier.GetAllSuppliersUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.supplier.GetSupplierByIdUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.supplier.UpdateSupplierUseCase;
 import cat.itacademy.fruitorderapimongo.infrastructure.dto.supplier.SupplierDtoRequest;
 import cat.itacademy.fruitorderapimongo.infrastructure.dto.supplier.SupplierDtoResponse;
 import cat.itacademy.fruitorderapimongo.infrastructure.mapper.SupplierMapper;

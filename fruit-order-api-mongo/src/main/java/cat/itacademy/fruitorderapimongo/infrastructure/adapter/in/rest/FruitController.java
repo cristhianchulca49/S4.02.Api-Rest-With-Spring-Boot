@@ -1,11 +1,11 @@
 package cat.itacademy.fruitorderapimongo.infrastructure.adapter.in.rest;
 
 import cat.itacademy.fruitorderapimongo.domain.model.Fruit;
-import cat.itacademy.fruitorderapimongo.domain.usecase.CreateFruitUseCase;
-import cat.itacademy.fruitorderapimongo.domain.usecase.DeleteFruitUseCase;
-import cat.itacademy.fruitorderapimongo.domain.usecase.GetAllFruitsUseCase;
-import cat.itacademy.fruitorderapimongo.domain.usecase.GetFruitByIdUseCase;
-import cat.itacademy.fruitorderapimongo.domain.usecase.UpdateFruitUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.fruit.CreateFruitUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.fruit.DeleteFruitUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.fruit.GetAllFruitsUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.fruit.GetFruitByIdUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.fruit.UpdateFruitUseCase;
 import cat.itacademy.fruitorderapimongo.infrastructure.dto.fruit.FruitDtoRequest;
 import cat.itacademy.fruitorderapimongo.infrastructure.dto.fruit.FruitDtoResponse;
 import cat.itacademy.fruitorderapimongo.infrastructure.mapper.FruitMapper;
@@ -41,16 +41,19 @@ public class FruitController {
 
     @PostMapping
     ResponseEntity<FruitDtoResponse> create(@Valid @RequestBody FruitDtoRequest fruitDtoRequest) {
-        Fruit createdFruit = createFruitUseCase.execute(fruitDtoRequest.name(), fruitDtoRequest.weightKg(), fruitDtoRequest.supplierId());
+        Fruit createdFruit = createFruitUseCase.execute(fruitDtoRequest);
         FruitDtoResponse response = FruitMapper.toDto(createdFruit);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.id()).toUri();
-
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.id())
+                .toUri();
         return ResponseEntity.created(location).body(response);
     }
 
     @GetMapping
     ResponseEntity<List<FruitDtoResponse>> getAll(@RequestParam(required = false) String supplierId) {
-        return ResponseEntity.ok(getAllFruitsUseCase.execute(Optional.ofNullable(supplierId)).stream()
+        return ResponseEntity.ok(getAllFruitsUseCase.execute(supplierId).stream()
                 .map(FruitMapper::toDto)
                 .toList());
     }
@@ -62,11 +65,11 @@ public class FruitController {
 
     @PutMapping("/{id}")
     ResponseEntity<FruitDtoResponse> update(@PathVariable String id, @Valid @RequestBody FruitDtoRequest fruitDtoRequest) {
-        return ResponseEntity.ok(FruitMapper.toDto(updateFruitUseCase.execute(id, fruitDtoRequest.name(), fruitDtoRequest.weightKg())));
+        return ResponseEntity.ok(FruitMapper.toDto(updateFruitUseCase.execute(id, fruitDtoRequest)));
     }
 
     @DeleteMapping("/{id}")
-    ResponseEntity<Void> delete(@PathVariable String id){
+    ResponseEntity<Void> delete(@PathVariable String id) {
         deleteFruitUseCase.execute(id);
         return ResponseEntity.noContent().build();
     }

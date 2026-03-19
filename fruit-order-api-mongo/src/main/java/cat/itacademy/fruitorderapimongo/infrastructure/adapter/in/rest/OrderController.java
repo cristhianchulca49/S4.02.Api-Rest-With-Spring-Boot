@@ -1,13 +1,13 @@
 package cat.itacademy.fruitorderapimongo.infrastructure.adapter.in.rest;
 
 import cat.itacademy.fruitorderapimongo.domain.model.order.Order;
-import cat.itacademy.fruitorderapimongo.domain.usecase.CreateOrderUseCase;
-import cat.itacademy.fruitorderapimongo.domain.usecase.GetAllOrdersUseCase;
-import cat.itacademy.fruitorderapimongo.domain.usecase.GetOrderByIdUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.order.CreateOrderUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.order.GetAllOrdersUseCase;
+import cat.itacademy.fruitorderapimongo.domain.usecase.order.GetOrderByIdUseCase;
 import cat.itacademy.fruitorderapimongo.infrastructure.dto.order.OrderDtoRequest;
 import cat.itacademy.fruitorderapimongo.infrastructure.dto.order.OrderDtoResponse;
 import cat.itacademy.fruitorderapimongo.infrastructure.mapper.OrderMapper;
-import cat.itacademy.fruitorderapimongo.domain.usecase.CreateOrderUseCase.OrderItemInput;
+import cat.itacademy.fruitorderapimongo.domain.usecase.order.CreateOrderUseCase.OrderItemInput;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,15 +24,9 @@ import java.util.List;
 @RequestMapping ("/orders")
 public class OrderController {
     private final CreateOrderUseCase createOrderUseCase;
-    private final GetAllOrdersUseCase getAllOrdersUseCase;
-    private final GetOrderByIdUseCase getOrderByIdUseCase;
 
-    public OrderController(CreateOrderUseCase createOrderUseCase,
-                           GetAllOrdersUseCase getAllOrdersUseCase,
-                           GetOrderByIdUseCase getOrderByIdUseCase) {
+    public OrderController(CreateOrderUseCase createOrderUseCase) {
         this.createOrderUseCase = createOrderUseCase;
-        this.getAllOrdersUseCase = getAllOrdersUseCase;
-        this.getOrderByIdUseCase = getOrderByIdUseCase;
     }
 
     @PostMapping
@@ -47,17 +41,5 @@ public class OrderController {
         OrderDtoResponse response = OrderMapper.toDto(createdOrder);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.id()).toUri();
         return ResponseEntity.created(location).body(response);
-    }
-
-    @GetMapping
-    ResponseEntity<List<OrderDtoResponse>> getAll() {
-        return ResponseEntity.ok(getAllOrdersUseCase.execute().stream()
-                .map(OrderMapper::toDto)
-                .toList());
-    }
-
-    @GetMapping("/{id}")
-    ResponseEntity<OrderDtoResponse> getById(@PathVariable String id) {
-        return ResponseEntity.ok(OrderMapper.toDto(getOrderByIdUseCase.execute(id)));
     }
 }
