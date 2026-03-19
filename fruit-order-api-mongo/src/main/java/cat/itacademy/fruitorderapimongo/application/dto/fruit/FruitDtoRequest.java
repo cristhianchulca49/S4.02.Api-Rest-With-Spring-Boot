@@ -9,8 +9,8 @@ public record FruitDtoRequest(
         @NotBlank(message = "name cannot be empty")
         String name,
 
-        @NotNull( message = "Weight cannot be empty")
-        @Positive(message = "Weight must be positive")
+        @NotNull( message = "Price cannot be empty")
+        @Positive(message = "Price must be positive")
         Double pricePerKg,
 
         @NotNull (message = "Supplier id cannot be empty")
