@@ -11,4 +11,5 @@ public interface SupplierRepositoryPort {
     List<Supplier> findAll();
     boolean existsByName(String name);
     void delete(Supplier supplier);
+    boolean existsById(String supplierId);
 }

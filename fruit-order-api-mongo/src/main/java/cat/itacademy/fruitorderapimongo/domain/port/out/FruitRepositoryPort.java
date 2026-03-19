@@ -12,4 +12,5 @@ public interface FruitRepositoryPort {
     boolean existsByName(String name);
     void delete(Fruit fruit);
     List<Fruit> findBySupplierId(String supplierId);
+    List<Fruit> findAllById(List<String> fruitsId);
 }
