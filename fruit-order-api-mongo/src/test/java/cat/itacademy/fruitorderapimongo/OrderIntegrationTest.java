@@ -164,4 +164,65 @@ class OrderIntegrationTest {
                 .statusCode(400)
                 .body("errors.clientName", containsStringIgnoringCase("client name cannot be blank"));
     }
+
+    //GET ORDERS
+
+    @Test
+    @DisplayName("Get all Orders should return 200")
+    void getOrders_shouldReturn200() {
+        String supplierId = given()
+                .contentType(ContentType.JSON)
+                .body(new SupplierDtoRequest("Carrefour", "Spain"))
+                .post("/suppliers")
+                .then()
+                .statusCode(201)
+                .extract().jsonPath().getString("id");
+
+        String fruitId = given()
+                .contentType(ContentType.JSON)
+                .body(new FruitDtoRequest("Watermelon", 2.5, supplierId))
+                .post("/fruits")
+                .then()
+                .statusCode(201)
+                .extract().jsonPath().getString("id");
+
+        OrderDtoRequest orderRequest = new OrderDtoRequest(
+                "John Doe",
+                LocalDate.now().plusDays(1),
+                List.of(new OrderItemDtoRequest(fruitId, 3.5))
+        );
+
+        String orderId = given()
+                .contentType(ContentType.JSON)
+                .body(orderRequest)
+                .post("/orders")
+                .then()
+                .statusCode(201)
+                .extract().jsonPath().getString("id");
+
+        given()
+                .when()
+                .get("/orders")
+                .then()
+                .statusCode(200)
+                .body("$", hasSize(1))
+                .body("$", hasSize(1))
+                .body("[0].id", is(orderId))
+                .body("[0].clientName", is(orderRequest.clientName()))
+                .body("[0].orderItems", hasSize(1))
+                .body("[0].orderItems[0].quantityInKg", is(3.5f))
+                .body("[0].orderItems[0].fruit.id", is(fruitId))
+                .body("[0].orderItems[0].fruit.name", is("Watermelon"));
+    }
+
+    @Test
+    @DisplayName("Get All Orders when there are no orders should return 200 and empty List")
+    void getAllOrders_shouldReturn200AndEmptyList() {
+        given()
+                .when()
+                .get("/orders")
+                .then()
+                .statusCode(200)
+                .body("orders", hasSize(0));
+    }
 }
