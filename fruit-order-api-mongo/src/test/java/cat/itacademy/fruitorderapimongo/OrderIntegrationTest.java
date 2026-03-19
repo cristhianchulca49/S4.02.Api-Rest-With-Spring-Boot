@@ -225,4 +225,62 @@ class OrderIntegrationTest {
                 .statusCode(200)
                 .body("orders", hasSize(0));
     }
+
+    @Test
+    @DisplayName("Get order by id should return 200")
+    void getOrderById_shouldReturn200() {
+        String supplierId = given()
+                .contentType(ContentType.JSON)
+                .body(new SupplierDtoRequest("Carrefour", "Spain"))
+                .post("/suppliers")
+                .then()
+                .statusCode(201)
+                .extract().jsonPath().getString("id");
+
+        String fruitId = given()
+                .contentType(ContentType.JSON)
+                .body(new FruitDtoRequest("Watermelon", 2.5, supplierId))
+                .post("/fruits")
+                .then()
+                .statusCode(201)
+                .extract().jsonPath().getString("id");
+
+        OrderDtoRequest orderRequest = new OrderDtoRequest(
+                "John Doe",
+                LocalDate.now().plusDays(1),
+                List.of(new OrderItemDtoRequest(fruitId, 3.5))
+        );
+
+        String orderId = given()
+                .contentType(ContentType.JSON)
+                .body(orderRequest)
+                .post("/orders")
+                .then()
+                .statusCode(201)
+                .extract().jsonPath().getString("id");
+
+        given()
+                .when()
+                .get("/orders/{id}", orderId)
+                .then()
+                .statusCode(200)
+                .body("id", is(orderId))
+                .body("clientName", is(orderRequest.clientName()))
+                .body("deliveryDate", is(orderRequest.deliveryDate().toString()))
+                .body("orderItems", hasSize(1))
+                .body("orderItems[0].quantityInKg", is(3.5f))
+                .body("orderItems[0].fruit.id", is(fruitId))
+                .body("orderItems[0].fruit.name", is("Watermelon"));
+    }
+
+    @Test
+    @DisplayName("Get order by non existing id should return 404")
+    void getOrderById_shouldReturn404() {
+        given()
+                .when()
+                .get("/orders/{id}", "nonexistent-id")
+                .then()
+                .statusCode(404)
+                .body("message", containsStringIgnoringCase("Order with id: nonexistent-id not found"));
+    }
 }
