@@ -40,4 +40,9 @@ public class MongoSupplierAdapter implements SupplierRepositoryPort {
     public void delete(Supplier supplier) {
         supplierRepository.delete(supplier);
     }
+
+    @Override
+    public boolean existsById(String supplierId) {
+        return supplierRepository.existsById(supplierId);
+    }
 }

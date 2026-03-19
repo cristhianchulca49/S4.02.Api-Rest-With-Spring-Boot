@@ -45,4 +45,9 @@ public class MongoFruitAdapter implements FruitRepositoryPort {
     public List<Fruit> findBySupplierId(String supplierId) {
         return fruitRepository.findAllBySupplier_Id(supplierId);
     }
+
+    @Override
+    public List<Fruit> findAllById(List<String> fruitsId) {
+        return fruitRepository.findAllById(fruitsId);
+    }
 }
