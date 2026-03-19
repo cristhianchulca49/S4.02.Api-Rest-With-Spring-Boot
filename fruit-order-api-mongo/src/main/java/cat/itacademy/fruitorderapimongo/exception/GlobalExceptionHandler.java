@@ -44,6 +44,11 @@ public class GlobalExceptionHandler {
         return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidDateException.class)
+    public ResponseEntity<ErrorDetails> handleInvalidDate(InvalidDateException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDetails> handleGeneralError(Exception ex) {
         log.error("Unexpected error: ", ex);
