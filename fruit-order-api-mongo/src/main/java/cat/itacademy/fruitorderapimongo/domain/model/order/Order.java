@@ -26,4 +26,16 @@ public class Order {
         this.dataOrder = dataOrder;
         this.orderItems = orderItems;
     }
+
+    public void changeName(Name clientName) {
+        this.clientName = clientName;
+    }
+
+    public void changeDataOrder(DataOrder dataOrder) {
+        this.dataOrder = dataOrder;
+    }
+
+    public void changeOrderItems(List<OrderItem> orderItems) {
+        this.orderItems = orderItems;
+    }
 }

@@ -2,12 +2,12 @@ package cat.itacademy.fruitorderapimongo.infrastructure.adapter.in.rest;
 
 import cat.itacademy.fruitorderapimongo.application.usecase.order.GetAllOrdersUseCase;
 import cat.itacademy.fruitorderapimongo.application.usecase.order.GetOrderByIdUseCase;
+import cat.itacademy.fruitorderapimongo.application.usecase.order.UpdateOrderUseCase;
 import cat.itacademy.fruitorderapimongo.domain.model.order.Order;
 import cat.itacademy.fruitorderapimongo.application.usecase.order.CreateOrderUseCase;
 import cat.itacademy.fruitorderapimongo.application.dto.order.OrderDtoRequest;
 import cat.itacademy.fruitorderapimongo.application.dto.order.OrderDtoResponse;
 import cat.itacademy.fruitorderapimongo.application.mapper.OrderMapper;
-import cat.itacademy.fruitorderapimongo.application.usecase.order.CreateOrderUseCase.OrderItemInput;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,22 +22,18 @@ public class OrderController {
     private final CreateOrderUseCase createOrderUseCase;
     private final GetAllOrdersUseCase getAllOrdersUseCase;
     private final GetOrderByIdUseCase getOrderByIdUseCase;
+    private final UpdateOrderUseCase updateOrderUseCase;
 
-    public OrderController(CreateOrderUseCase createOrderUseCase, GetAllOrdersUseCase getAllOrdersUseCase, GetOrderByIdUseCase getOrderByIdUseCase) {
+    public OrderController(CreateOrderUseCase createOrderUseCase, GetAllOrdersUseCase getAllOrdersUseCase, GetOrderByIdUseCase getOrderByIdUseCase, UpdateOrderUseCase updateOrderUseCase, UpdateOrderUseCase updateOrderUseCase1) {
         this.createOrderUseCase = createOrderUseCase;
         this.getAllOrdersUseCase = getAllOrdersUseCase;
         this.getOrderByIdUseCase = getOrderByIdUseCase;
+        this.updateOrderUseCase = updateOrderUseCase1;
     }
 
     @PostMapping
-    ResponseEntity<OrderDtoResponse> createOrder(@RequestBody @Valid OrderDtoRequest order){
-        Order createdOrder = createOrderUseCase.execute(
-                order.clientName(),
-                order.deliveryDate(),
-                order.items().stream()
-                        .map(item -> new OrderItemInput(item.fruitId(), item.quantityInKg()))
-                        .toList()
-        );
+    ResponseEntity<OrderDtoResponse> createOrder(@RequestBody @Valid OrderDtoRequest order) {
+        Order createdOrder = createOrderUseCase.execute(OrderMapper.toCommand(order));
         OrderDtoResponse response = OrderMapper.toDto(createdOrder);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.id()).toUri();
         return ResponseEntity.created(location).body(response);
@@ -53,9 +49,15 @@ public class OrderController {
     }
 
     @GetMapping("{id}")
-    ResponseEntity<OrderDtoResponse> getOrderById(@PathVariable String id){
+    ResponseEntity<OrderDtoResponse> getOrderById(@PathVariable String id) {
         Order order = getOrderByIdUseCase.execute(id);
         OrderDtoResponse response = OrderMapper.toDto(order);
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("{id}")
+    ResponseEntity<OrderDtoResponse> updateOrder(@PathVariable String id, @RequestBody @Valid OrderDtoRequest order) {
+        Order createdOrder = updateOrderUseCase.execute(id, OrderMapper.toCommand(order));
+        return ResponseEntity.ok(OrderMapper.toDto(createdOrder));
     }
 }
